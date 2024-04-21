@@ -1,0 +1,169 @@
+# This is the OpenAPI specification for your service. It is used to generate the client code.
+# To generate the server code, use the Gradle task `openApiGenerate`. The 
+# generated code will be placed in `build/generate-resources/main`.
+#
+# We will evaluate you based on how well you design your API.
+# 1. How well it follows REST principles.
+# 2. How easy it is to understand and use.
+#
+# References
+# 1. https://swagger.io/specification/
+openapi: "3.0.0"
+info:
+  version: 1.0.0
+  title: User Service
+  license:
+    name: MIT
+servers:
+  - url: http://localhost:8080
+paths:
+  /user:
+    post:
+      summary: Creating a new user.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - phone
+                - name
+                - password
+              properties:
+                phone:
+                  type: string
+                  minLength: 10
+                  maxLength: 13
+                  format: phone
+                  example: "+62821111121"
+                  description: Phone number must start with "+62".
+                name:
+                  type: string
+                  minLength: 3
+                  maxLength: 60
+                  example: "John Doe"
+                password:
+                  type: string
+                  example: "Test123456!"
+                  description: >
+                    Password must be minimum 6 characters and maximum 64 characters,
+                    containing at least 1 uppercase letter, 1 number, and 1 special
+                    character (non-alphanumeric).
+      responses:
+        '200':
+          description: OK
+        '400':
+          description: Bad request
+        '500':
+          description: Internal server error
+    put:
+      summary: Update user information
+      description: |
+        This endpoint allows updating user information. Requires Authorization token obtained from login.
+      requestBody:
+        description: At least either one of the request attribute must be exists (phone or name).
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  minLength: 3
+                  maxLength: 60
+                  description: Name of the user
+                phone:
+                  type: string
+                  description: Phone number associated with the user account
+      responses:
+        '200':
+          description: OK
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthorized
+        '500':
+          description: Internal server error
+  /login:
+    post:
+      summary: User login
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - phone
+                - password
+              properties:
+                phone:
+                  type: string
+                  description: Phone number associated with the user account
+                password:
+                  type: string
+                  minLength: 6
+                  maxLength: 64
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+                    description: JWT token for authorization
+                    example: "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MTM3ODcyODAsInBob25lIjoiKzYyODIxMTExMTIxIn0.e3rtBlf1kJ2Gqyh_X1h4oQU3GGJGMLMsMrOVSwhkteJaZhR6VS3I9Id7N8MF-AlIAMMfhqylXhNzgDtRgO4kSQJo8xeDA8DpUN_JIlQR3Vh8bBqJ8Xd2fjqpMJVP1VJR-_DNIlENvL19nO57w98YollHN5gRFjaHMVvbdrYFX98qIPRslTqAmzVPeEKS17VlBcYCq-nMUjiOnME9peiBezU9oNSLg8kUe1uBi6DEmJit1liULR2I7L0igYU5gBF2YZWh-t61GXIa1ieGJ_n6sPwTKOCVZcse4M2dTK1k3q3-dQi1m8J60gPL9qkFEWt7GJ_6raaecpFUfxK4RtBMNQ"
+        '400':
+          description: Bad request
+        '500':
+          description: Internal server error
+  /profile:
+    get:
+      summary: Get user profile
+      description: This API requires an Authorization token retrieved from the login API.
+      security:
+        - BearerAuth: [ ]
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      name:
+                        type: string
+                        description: Name of the user
+                        example: "gio"
+                      phone:
+                        type: string
+                        description: Phone number of the user
+                        example: "+62821111121"
+        '403':
+          description: Forbidden
+        '500':
+          description: Internal server error
+components:
+  schemas:
+    HelloResponse:
+      type: object
+      required:
+        - message
+      properties:
+        message:
+          type: string
+    ErrorResponse:
+      type: object
+      required:
+        - message
+      properties:
+        message:
+          type: string
