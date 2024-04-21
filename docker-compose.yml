@@ -8,6 +8,8 @@ services:
     depends_on:
       db:
         condition: service_healthy
+    volumes:
+      - ./config.json:/config.json
   db:
     platform: linux/x86_64
     image: postgres:14.1-alpine
